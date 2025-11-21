@@ -12,41 +12,41 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <style>
-/* --- 기존 스타일 유지, 모바일 최적화 --- */
-body{font-family:sans-serif;margin:0;padding:5px;background:#000;color:#e0e0e0;}
-h2{text-align:center;color:#fff;margin:5px 0;font-size:1.2em;}
-.container{background:#1e1e1e;padding:5px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.5);margin-bottom:5px;}
-.save-btn{padding:5px 8px;font-size:0.9em;border:none;border-radius:6px;cursor:pointer;background:#2a7bff;color:white;width:100%;margin-top:5px;}
-.date-row{display:flex;align-items:center;gap:3px;margin-bottom:3px;flex-wrap:wrap;}
-.action-btn{border:none;border-radius:6px;cursor:pointer;font-size:0.6em;padding:2px 4px;flex:1;text-align:center;}
+body{font-family:sans-serif;margin:0;padding:3px;background:#000;color:#e0e0e0;}
+h2{text-align:center;color:#fff;margin:2px 0;font-size:0.9em;}
+.container{background:#1e1e1e;padding:3px;border-radius:6px;box-shadow:0 2px 5px rgba(0,0,0,0.5);margin-bottom:3px;}
+.date-row{display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-bottom:2px;}
+.action-btn{border:none;border-radius:6px;cursor:pointer;font-size:0.6em;padding:2px 2px;flex:1;text-align:center;}
 .delete-btn{background:#d9534f;color:white;}
 .add-btn{background:#ff9800;color:white;}
-#exerciseContainer{max-height:300px;overflow-y:auto;}
-table{width:100%;border-collapse:separate;border-spacing:0;margin-top:3px;border:1px solid #555;border-radius:6px;overflow:hidden;font-size:0.7em;}
-th,td{border:1px solid #555;padding:3px;text-align:center;}
+.save-btn{padding:3px 5px;font-size:0.6em;border:none;border-radius:6px;cursor:pointer;background:#2a7bff;color:white;width:100%;margin-top:2px;}
+#exerciseContainer{overflow-y:auto;max-height:180px;}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:2px;border:1px solid #555;border-radius:6px;overflow:hidden;font-size:0.6em;}
+th,td{border:1px solid #555;padding:2px;text-align:center;}
 th{background:#333;color:white;}
 tr{height:calc(1.3em*2);}
 input[type="checkbox"]{width:14px;height:14px;}
-footer{text-align:center;margin-top:5px;padding:2px;color:#888;font-size:0.7em;}
+footer{text-align:center;margin-top:3px;padding:2px;color:#888;font-size:0.6em;}
 
 /* 달력 */
+#monthNav{display:flex;justify-content:space-between;margin-bottom:2px;font-size:0.6em;}
+#monthNav button{cursor:pointer;padding:2px 3px;border-radius:4px;font-size:0.6em;}
 #calendar{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    gap:2px;
+    gap:1px;
     font-size:0.6em;
     line-height:1.1;
-    margin-top:3px;
 }
-.calendar-weekday{text-align:center;font-weight:bold;padding:1px 0;font-size:0.6em;}
+.calendar-weekday{text-align:center;font-weight:bold;padding:1px 0;}
 .calendar-day{
-    padding:2px;
+    padding:1px;
     text-align:center;
     background:#222;
     border-radius:3px;
     cursor:pointer;
     border:1px solid transparent;
-    height: calc(1.3 * 1.5em);
+    height:calc(1.3em*1.5);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -55,24 +55,21 @@ footer{text-align:center;margin-top:5px;padding:2px;color:#888;font-size:0.7em;}
 .calendar-day.selected{border-color:rgb(192,192,192);}
 .calendar-day:hover{background:#444;}
 
-#monthNav button{cursor:pointer;padding:2px 5px;border-radius:4px;font-size:0.6em;}
-#monthNav{display:flex;justify-content:space-between;margin-bottom:3px;font-size:0.6em;}
-
 /* 모달 */
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;justify-content:center;align-items:center;}
 .modal{
     background:#333;
     color:white;
-    padding:10px;
-    border-radius:8px;
+    padding:8px;
+    border-radius:6px;
     text-align:center;
     min-width:150px;
     box-shadow:0 4px 15px rgba(0,0,0,0.7);
-    font-size:0.6em; /* 달력 글씨 크기와 동일 */
+    font-size:0.6em;
 }
 .modal button{
-    margin-top:5px;
-    padding:3px 8px;
+    margin-top:3px;
+    padding:2px 5px;
     border:none;
     border-radius:5px;
     background:white;
@@ -139,7 +136,6 @@ footer{text-align:center;margin-top:5px;padding:2px;color:#888;font-size:0.7em;}
 </div>
 
 <script>
-// --- 기존 JS 코드 유지 ---
 const defaultExercises = [
     {name:"보강", sets:3},
     {name:"코어", sets:3},
@@ -162,9 +158,21 @@ function createRow(ex){
         const isChecked = ex.checkedValues && ex.checkedValues[i] ? 'checked' : '';
         html+=`<td><input type="checkbox" data-name="${ex.name}_${i+1}" ${isChecked}></td>`;
     }
-    html+=`<td></td>`;
+
+    // 기본 운동이면 삭제 버튼 없음, 추가 운동이면 삭제 버튼 추가
+    if(defaultExercises.find(def=>def.name===ex.name)){
+        html+=`<td></td>`;
+    } else {
+        html+=`<td><button class="action-btn delete-btn" onclick="deleteExerciseRow(this)">X</button></td>`;
+    }
+
     tr.innerHTML=html;
     return tr;
+}
+
+// 추가된 운동 삭제 함수
+function deleteExerciseRow(btn){
+    btn.closest("tr").remove();
 }
 
 // +운동 추가 모달
